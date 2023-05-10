@@ -12,9 +12,7 @@ function App() {
   const [locations, setLocations] = useState([]);
   const [waypoints, setWaypoints] = useState();
   const [inputLoc, setInputloc] = useState('');
-  const [routeLocOne, setRouteLocOne] = useState('');
-  const [routeLocTwo, setRouteLocTwo] = useState('');
-  const [formView, setFormView] = useState(false);
+  const [showRoutingForm, setFormView] = useState(false);
 
   useEffect(() => {}, [waypoints]);
 
@@ -52,23 +50,24 @@ function App() {
       });
   }
 
-  async function addPath() {
+  async function handleRouteSubmit(event) {
+    event.preventDefault();
+    // Reset previous waypoints
     if (waypoints) {
       setWaypoints();
     }
-    const loc1 = routeLocOne;
-    const loc2 = routeLocTwo;
+    // Hide the form
     setFormView(false);
+
+    const formData = new FormData(event.target);
+    const locations = formData.getAll('location');
     const res = await fetch(url + '/route', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json;charset=UTF-8',
       },
-      body: JSON.stringify({
-        loc1: loc1,
-        loc2: loc2,
-      }),
+      body: JSON.stringify({ locations }),
     });
     if (!res.ok) {
       const err = await res.text();
@@ -101,36 +100,32 @@ function App() {
       </div>
       <div className="routeBlock">
         <div className="addRoutes">
-          {formView ? (
-            <div>
+          {showRoutingForm && (
+            <form onSubmit={handleRouteSubmit}>
               <div className="posOne">
                 <input
                   type="text"
+                  name="location"
                   required
-                  onChange={(e) => setRouteLocOne(e.target.value)}
                   placeholder="Staring Point"
                 />
               </div>
               <div className="posTwo">
                 <input
                   type="text"
+                  name="location"
                   required
-                  onChange={(e) => setRouteLocTwo(e.target.value)}
-                  placeholder="End Point "
+                  placeholder="End Point"
                 />
               </div>
-              <button className="addloc" onClick={addPath}>
-                Find Path
-              </button>
-            </div>
-          ) : (
-            ''
+              <button className="addloc">Find Path</button>
+            </form>
           )}
           <FontAwesomeIcon
             icon={faRoute}
             style={{ color: '#1EE2C7' }}
             onClick={() => {
-              setFormView(true);
+              setFormView((showRoutingForm) => !showRoutingForm);
             }}
           />
         </div>

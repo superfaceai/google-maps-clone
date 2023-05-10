@@ -7,7 +7,7 @@ const PORT = 5000;
 app.use(express.json());
 app.use(cors());
 
-async function run(loc) {
+async function geocodeLocation(loc) {
   // Load the profile
   const profile = await sdk.getProfile('address/geocoding@3.1.2');
 
@@ -29,7 +29,7 @@ async function run(loc) {
 app.post('/cor', async (req, res) => {
   console.log(req.body);
   let coordinate = {};
-  await run(req.body.loc).then((response) => {
+  await geocodeLocation(req.body.loc).then((response) => {
     coordinate.cor = response;
     console.log(response);
     if (response) {
@@ -42,13 +42,17 @@ app.post('/cor', async (req, res) => {
 
 app.post('/route', async (req, res) => {
   try {
-    const waypoints = await Promise.all([
-      run(req.body.loc1),
-      run(req.body.loc2),
-    ]);
+    const locations = req.body.locations;
+    if (locations.length !== 2) {
+      res.status(422).json({ error: 'Expected 2 waypoints' });
+      return;
+    }
+    const waypoints = await Promise.all(
+      locations.map((location) => geocodeLocation(location))
+    );
     res.json({ waypoints });
   } catch (error) {
-    res.status(400).json(error);
+    res.status(500).json(error);
   }
 });
 
