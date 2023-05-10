@@ -1,5 +1,4 @@
 import './App.css';
-import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
 
@@ -9,34 +8,11 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet-defaulticon-compatibility';
 
 function App() {
-  const [locationMarkers, setLocationMarkers] = useState([]);
-
-  async function handleMarkerSubmit(event) {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const inputLocation = formData.get('location');
-
-    const res = await fetch(
-      '/api/geocode?' +
-        new URLSearchParams({ location: inputLocation }).toString()
-    );
-    if (!res.ok) {
-      const err = await res.text();
-      alert(`Something went wrong.\n${err}`);
-    } else {
-      const data = await res.json();
-      let newLocation = {
-        address: data.location,
-        lat: data.coordinates.latitude,
-        long: data.coordinates.longitude,
-      };
-      setLocationMarkers((locations) => [...locations, newLocation]);
-    }
-  }
+  const position = [51.505, -0.09];
 
   return (
     <div className="App">
-      <form className="inputBlock" onSubmit={handleMarkerSubmit}>
+      <form className="inputBlock">
         <input
           type="text"
           id="location"
@@ -49,13 +25,9 @@ function App() {
         </button>
       </form>
       <MapContainer center={[51.505, -0.09]} id="mapId" zoom={13}>
-        {locationMarkers.map((loc, key) => {
-          return (
-            <Marker key={key} position={[loc.lat, loc.long]}>
-              <Popup>{loc.address}</Popup>
-            </Marker>
-          );
-        })}
+        <Marker position={position}>
+          <Popup>Hello World</Popup>
+        </Marker>
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       </MapContainer>
     </div>
