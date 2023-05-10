@@ -34,22 +34,6 @@ app.get('/api/geocode', async (req, res) => {
   }
 });
 
-app.post('/api/route', async (req, res) => {
-  try {
-    const locations = req.body.locations;
-    if (locations.length !== 2) {
-      res.status(422).json({ error: 'Expected 2 waypoints' });
-      return;
-    }
-    const waypoints = await Promise.all(
-      locations.map((location) => geocodeLocation(location))
-    );
-    res.json({ waypoints });
-  } catch (error) {
-    res.status(500).json(error);
-  }
-});
-
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });
