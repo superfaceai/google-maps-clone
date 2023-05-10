@@ -5,7 +5,6 @@ import { faLocationDot, faRoute } from '@fortawesome/free-solid-svg-icons';
 
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import RoutingMachine from './RoutingMachine';
-const url = 'http://localhost:5000';
 
 function App() {
   const inputEle = useRef();
@@ -17,37 +16,21 @@ function App() {
   useEffect(() => {}, [waypoints]);
 
   async function handleSubmit() {
-    const data = inputLoc;
-    await fetch(url + '/cor', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json;charset=UTF-8',
-      },
-      body: JSON.stringify({
-        loc: data,
-      }),
-    })
-      .then((res) => {
-        return res.json();
-      })
-      .then((data) => {
-        console.log(data);
-        if (data.status == 200) {
-          let obj = {
-            address: inputLoc,
-            lat: data.response.latitude,
-            long: data.response.longitude,
-          };
-          setLocations((locations) => [...locations, obj]);
-          inputEle.current.value = '';
-        } else {
-          alert('Something went wrong');
-        }
-      })
-      .catch((err) => {
-        throw new Error(`Invalid response`);
-      });
+    const res = await fetch(
+      '/api/geocode?' + new URLSearchParams({ location: inputLoc }).toString()
+    );
+    if (!res.ok) {
+      const err = await res.text();
+      alert(`Something went wrong.\n${err}`);
+    } else {
+      const data = await res.json();
+      let newLocation = {
+        address: data.location,
+        lat: data.coordinates.latitude,
+        long: data.coordinates.longitude,
+      };
+      setLocations((locations) => [...locations, newLocation]);
+    }
   }
 
   async function handleRouteSubmit(event) {
@@ -61,7 +44,7 @@ function App() {
 
     const formData = new FormData(event.target);
     const locations = formData.getAll('location');
-    const res = await fetch(url + '/route', {
+    const res = await fetch('/api/route', {
       method: 'POST',
       headers: {
         Accept: 'application/json',

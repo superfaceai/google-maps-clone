@@ -1,11 +1,9 @@
 const express = require('express');
 const app = express();
-const cors = require('cors');
 const { SuperfaceClient } = require('@superfaceai/one-sdk');
 const sdk = new SuperfaceClient();
 const PORT = 5000;
 app.use(express.json());
-app.use(cors());
 
 async function geocodeLocation(loc) {
   // Load the profile
@@ -26,21 +24,17 @@ async function geocodeLocation(loc) {
   return data;
 }
 
-app.post('/cor', async (req, res) => {
-  console.log(req.body);
-  let coordinate = {};
-  await geocodeLocation(req.body.loc).then((response) => {
-    coordinate.cor = response;
-    console.log(response);
-    if (response) {
-      res.json({ response: response, status: 200 });
-    } else {
-      res.json({ status: 400 });
-    }
-  });
+app.get('/api/geocode', async (req, res) => {
+  try {
+    const location = req.query.location;
+    const coordinates = await geocodeLocation(location);
+    res.json({ location, coordinates });
+  } catch (error) {
+    res.status(500).json(error);
+  }
 });
 
-app.post('/route', async (req, res) => {
+app.post('/api/route', async (req, res) => {
   try {
     const locations = req.body.locations;
     if (locations.length !== 2) {
