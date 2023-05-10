@@ -22,20 +22,34 @@ async function run(loc) {
   );
 
   // Handle the result
-  try {
-    const data = result.unwrap();
-    return data;
-  } catch (error) {
-    console.error(error);
-  }
+  const data = result.unwrap();
+  return data;
 }
 
 app.post('/cor', async (req, res) => {
+  console.log(req.body);
   let coordinate = {};
   await run(req.body.loc).then((response) => {
     coordinate.cor = response;
-    res.json(response);
+    console.log(response);
+    if (response) {
+      res.json({ response: response, status: 200 });
+    } else {
+      res.json({ status: 400 });
+    }
   });
+});
+
+app.post('/route', async (req, res) => {
+  try {
+    const waypoints = await Promise.all([
+      run(req.body.loc1),
+      run(req.body.loc2),
+    ]);
+    res.json({ waypoints });
+  } catch (error) {
+    res.status(400).json(error);
+  }
 });
 
 app.listen(PORT, () => {

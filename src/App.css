@@ -27,3 +27,18 @@
   font-size: 1.5rem;
   border: 2px black solid;
 }
+
+.routeBlock {
+  position: absolute;
+  left: 0.5vw;
+  bottom: 2vh;
+  z-index: 500;
+  padding: 5px;
+  font-size: 2rem;
+  border: 2px solid rgb(41, 38, 38);
+  background-color: #282c34;
+}
+
+.routeBlock input {
+  font-size: 1rem;
+}
