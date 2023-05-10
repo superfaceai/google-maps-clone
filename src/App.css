@@ -3,6 +3,7 @@
   height: 100vh;
 }
 
+/* Location form */
 .inputBlock {
   display: flex;
   justify-content: space-between;
@@ -28,6 +29,7 @@
   border: 2px black solid;
 }
 
+/* Routing form */
 .routeBlock {
   position: absolute;
   left: 0.5vw;
