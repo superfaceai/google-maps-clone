@@ -1,7 +1,7 @@
 import './App.css';
-import { useState, useEffect } from 'react';
+import { useState} from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLocationDot, faRoute } from '@fortawesome/free-solid-svg-icons';
+import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
 
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css';
@@ -12,10 +12,16 @@ import RoutingMachine from './RoutingMachine';
 
 function App() {
   const [locationMarkers, setLocationMarkers] = useState([]);
-  const [waypoints, setWaypoints] = useState();
-  const [showRoutingForm, setFormView] = useState(false);
-
-  useEffect(() => {}, [waypoints]);
+  const waypoints = [
+    {
+      latitude: 51.505,
+      longitude: -0.09,
+    },
+    {
+      latitude: 51.467,
+      longitude: -0.458,
+    },
+  ];
 
   async function handleMarkerSubmit(event) {
     event.preventDefault();
@@ -40,34 +46,6 @@ function App() {
     }
   }
 
-  async function handleRouteSubmit(event) {
-    event.preventDefault();
-    // Reset previous waypoints
-    if (waypoints) {
-      setWaypoints();
-    }
-    // Hide the form
-    setFormView(false);
-
-    const formData = new FormData(event.target);
-    const locations = formData.getAll('location');
-    const res = await fetch('/api/route', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json;charset=UTF-8',
-      },
-      body: JSON.stringify({ locations }),
-    });
-    if (!res.ok) {
-      const err = await res.text();
-      alert(`Something went wrong.\n${err}`);
-    } else {
-      const data = await res.json();
-      setWaypoints(data.waypoints);
-    }
-  }
-
   return (
     <div className="App">
       <form className="inputBlock" onSubmit={handleMarkerSubmit}>
@@ -82,39 +60,7 @@ function App() {
           <FontAwesomeIcon icon={faLocationDot} style={{ color: '#1EE2C7' }} />
         </button>
       </form>
-      <div className="routeBlock">
-        <div className="addRoutes">
-          {showRoutingForm && (
-            <form onSubmit={handleRouteSubmit}>
-              <div className="posOne">
-                <input
-                  type="text"
-                  name="location"
-                  required
-                  placeholder="Staring Point"
-                />
-              </div>
-              <div className="posTwo">
-                <input
-                  type="text"
-                  name="location"
-                  required
-                  placeholder="End Point"
-                />
-              </div>
-              <button className="addloc">Find Path</button>
-            </form>
-          )}
-          <FontAwesomeIcon
-            icon={faRoute}
-            style={{ color: '#1EE2C7' }}
-            onClick={() => {
-              setFormView((showRoutingForm) => !showRoutingForm);
-            }}
-          />
-        </div>
-      </div>
-      <MapContainer center={[31.505, 70.09]} id="mapId" zoom={4}>
+      <MapContainer center={[51.505, -0.09]} id="mapId" zoom={13}>
         {locationMarkers.map((loc, key) => {
           return (
             <Marker key={key} position={[loc.lat, loc.long]}>
