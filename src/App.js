@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationDot, faRoute } from '@fortawesome/free-solid-svg-icons';
 
@@ -7,17 +7,20 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import RoutingMachine from './RoutingMachine';
 
 function App() {
-  const inputEle = useRef();
-  const [locations, setLocations] = useState([]);
+  const [locationMarkers, setLocationMarkers] = useState([]);
   const [waypoints, setWaypoints] = useState();
-  const [inputLoc, setInputloc] = useState('');
   const [showRoutingForm, setFormView] = useState(false);
 
   useEffect(() => {}, [waypoints]);
 
-  async function handleSubmit() {
+  async function handleMarkerSubmit(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const inputLocation = formData.get('location');
+
     const res = await fetch(
-      '/api/geocode?' + new URLSearchParams({ location: inputLoc }).toString()
+      '/api/geocode?' +
+        new URLSearchParams({ location: inputLocation }).toString()
     );
     if (!res.ok) {
       const err = await res.text();
@@ -29,7 +32,7 @@ function App() {
         lat: data.coordinates.latitude,
         long: data.coordinates.longitude,
       };
-      setLocations((locations) => [...locations, newLocation]);
+      setLocationMarkers((locations) => [...locations, newLocation]);
     }
   }
 
@@ -63,24 +66,18 @@ function App() {
 
   return (
     <div className="App">
-      <div className="inputBlock">
+      <form className="inputBlock" onSubmit={handleMarkerSubmit}>
         <input
           type="text"
           id="location"
-          ref={inputEle}
           name="location"
           required
           placeholder="Enter location"
-          onChange={(e) => setInputloc(e.target.value)}
         />
-        <div className="addloc">
-          <FontAwesomeIcon
-            icon={faLocationDot}
-            style={{ color: '#1EE2C7' }}
-            onClick={handleSubmit}
-          />
-        </div>
-      </div>
+        <button type="submit" className="addloc">
+          <FontAwesomeIcon icon={faLocationDot} style={{ color: '#1EE2C7' }} />
+        </button>
+      </form>
       <div className="routeBlock">
         <div className="addRoutes">
           {showRoutingForm && (
@@ -114,7 +111,7 @@ function App() {
         </div>
       </div>
       <MapContainer center={[31.505, 70.09]} id="mapId" zoom={4}>
-        {locations.map((loc, key) => {
+        {locationMarkers.map((loc, key) => {
           return (
             <Marker key={key} position={[loc.lat, loc.long]}>
               <Popup>{loc.address}</Popup>
