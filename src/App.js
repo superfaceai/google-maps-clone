@@ -1,10 +1,13 @@
-import 'leaflet/dist/leaflet.css';
 import './App.css';
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationDot, faRoute } from '@fortawesome/free-solid-svg-icons';
 
+import 'leaflet/dist/leaflet.css';
+import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet-defaulticon-compatibility';
+
 import RoutingMachine from './RoutingMachine';
 
 function App() {
